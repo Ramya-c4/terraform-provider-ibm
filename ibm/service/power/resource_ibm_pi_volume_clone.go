@@ -57,7 +57,8 @@ func ResourceIBMPIVolumeClone() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				ForceNew:    true,
 				Optional:    true,
-				Type:        schema.TypeList,
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
 			},
 			Arg_VolumeCloneName: {
 				Description:  "The base name of the newly cloned volume(s).",
@@ -143,8 +144,8 @@ func resourceIBMPIVolumeCloneCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if v, ok := d.GetOk(Arg_UserTags); ok {
-		if len(v.([]interface{})) > 0 {
-			body.UserTags = flex.ExpandStringList(v.([]interface{}))
+		if len(flex.FlattenSet(v.(*schema.Set))) > 0 {
+			body.UserTags = flex.FlattenSet(v.(*schema.Set))
 		}
 	}
 

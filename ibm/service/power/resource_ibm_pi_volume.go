@@ -92,7 +92,8 @@ func ResourceIBMPIVolume() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				ForceNew:    true,
 				Optional:    true,
-				Type:        schema.TypeList,
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
 			},
 			Arg_VolumeName: {
 				Description:  "The name of the volume.",
@@ -278,8 +279,8 @@ func resourceIBMPIVolumeCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	}
 	if v, ok := d.GetOk(Arg_UserTags); ok {
-		if len(v.([]interface{})) > 0 {
-			body.UserTags = flex.ExpandStringList(v.([]interface{}))
+		if len(flex.FlattenSet(v.(*schema.Set))) > 0 {
+			body.UserTags = flex.FlattenSet(v.(*schema.Set))
 		}
 	}
 
