@@ -193,7 +193,8 @@ func ResourceIBMPIImage() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				ForceNew:    true,
 				Optional:    true,
-				Type:        schema.TypeList,
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
 			},
 
 			// Computed Attribute
@@ -232,8 +233,8 @@ func resourceIBMPIImageCreate(ctx context.Context, d *schema.ResourceData, meta 
 			Source:    &source,
 		}
 		if tags, ok := d.GetOk(Arg_UserTags); ok {
-			if len(tags.([]interface{})) > 0 {
-				body.UserTags = flex.ExpandStringList(tags.([]interface{}))
+			if len(flex.FlattenSet(tags.(*schema.Set))) > 0 {
+				body.UserTags = flex.FlattenSet(tags.(*schema.Set))
 			}
 		}
 		imageResponse, err := client.Create(body)
@@ -316,8 +317,8 @@ func resourceIBMPIImageCreate(ctx context.Context, d *schema.ResourceData, meta 
 			body.ImportDetails = &importDetailsModel
 		}
 		if tags, ok := d.GetOk(Arg_UserTags); ok {
-			if len(tags.([]interface{})) > 0 {
-				body.UserTags = flex.ExpandStringList(tags.([]interface{}))
+			if len(flex.FlattenSet(tags.(*schema.Set))) > 0 {
+				body.UserTags = flex.FlattenSet(tags.(*schema.Set))
 			}
 		}
 		imageResponse, err := client.CreateCosImage(body)
