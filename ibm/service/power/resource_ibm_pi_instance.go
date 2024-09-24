@@ -255,7 +255,8 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				ForceNew:    true,
 				Optional:    true,
-				Type:        schema.TypeList,
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
 			},
 			Arg_SAPProfileID: {
 				ConflictsWith: []string{Arg_Processors, Arg_Memory, Arg_ProcType},
@@ -1401,8 +1402,8 @@ func createSAPInstance(d *schema.ResourceData, sapClient *instance.IBMPISAPInsta
 		if !bootVolumeReplicationEnabled {
 			return nil, fmt.Errorf("must set %s to true in order to specify replication sites", Arg_BootVolumeReplicationEnabled)
 		} else {
-			if len(sites.([]interface{})) > 0 {
-				replicationSites = flex.ExpandStringList(sites.([]interface{}))
+			if len(flex.FlattenSet(sites.(*schema.Set))) > 0 {
+				replicationSites = flex.FlattenSet(sites.(*schema.Set))
 				body.ReplicationSites = replicationSites
 			}
 		}
@@ -1649,8 +1650,8 @@ func createPVMInstance(d *schema.ResourceData, client *instance.IBMPIInstanceCli
 		if !bootVolumeReplicationEnabled {
 			return nil, fmt.Errorf("must set %s to true in order to specify replication sites", Arg_BootVolumeReplicationEnabled)
 		} else {
-			if len(sites.([]interface{})) > 0 {
-				replicationSites = flex.ExpandStringList(sites.([]interface{}))
+			if len(flex.FlattenSet(sites.(*schema.Set))) > 0 {
+				replicationSites = flex.FlattenSet(sites.(*schema.Set))
 				body.ReplicationSites = replicationSites
 			}
 		}
