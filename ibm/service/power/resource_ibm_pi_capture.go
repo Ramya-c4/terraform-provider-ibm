@@ -109,7 +109,8 @@ func ResourceIBMPICapture() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				ForceNew:    true,
 				Optional:    true,
-				Type:        schema.TypeList,
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
 			},
 			// Computed Attribute
 			Attr_CRN: {
@@ -174,8 +175,8 @@ func resourceIBMPICaptureCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if v, ok := d.GetOk(Arg_UserTags); ok {
-		if len(v.([]interface{})) > 0 {
-			captureBody.UserTags = flex.ExpandStringList(v.([]interface{}))
+		if len(flex.FlattenSet(v.(*schema.Set))) > 0 {
+			captureBody.UserTags = flex.FlattenSet(v.(*schema.Set))
 		}
 	}
 

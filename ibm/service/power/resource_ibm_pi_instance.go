@@ -305,7 +305,8 @@ func ResourceIBMPIInstance() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				ForceNew:    true,
 				Optional:    true,
-				Type:        schema.TypeList,
+				Set:         schema.HashString,
+				Type:        schema.TypeSet,
 			},
 			Arg_VirtualCoresAssigned: {
 				Computed:    true,
@@ -1432,8 +1433,8 @@ func createSAPInstance(d *schema.ResourceData, sapClient *instance.IBMPISAPInsta
 		body.DeploymentTarget = expandDeploymentTarget(deploymentTarget.(*schema.Set).List())
 	}
 	if tags, ok := d.GetOk(Arg_UserTags); ok {
-		if len(tags.([]interface{})) > 0 {
-			body.UserTags = flex.ExpandStringList(tags.([]interface{}))
+		if len(flex.FlattenSet(tags.(*schema.Set))) > 0 {
+			body.UserTags = flex.FlattenSet(tags.(*schema.Set))
 		}
 	}
 	pvmList, err := sapClient.Create(body)
@@ -1631,8 +1632,8 @@ func createPVMInstance(d *schema.ResourceData, client *instance.IBMPIInstanceCli
 		body.DeploymentTarget = expandDeploymentTarget(deploymentTarget.(*schema.Set).List())
 	}
 	if tags, ok := d.GetOk(Arg_UserTags); ok {
-		if len(tags.([]interface{})) > 0 {
-			body.UserTags = flex.ExpandStringList(tags.([]interface{}))
+		if len(flex.FlattenSet(tags.(*schema.Set))) > 0 {
+			body.UserTags = flex.FlattenSet(tags.(*schema.Set))
 		}
 	}
 	pvmList, err := client.Create(body)
